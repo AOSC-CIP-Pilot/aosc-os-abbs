@@ -1,4 +1,7 @@
-VER=12.3.0
-SRCS="tbl::https://ftp.gnu.org/gnu/gcc/gcc-$VER/gcc-$VER.tar.xz"
-CHKSUMS="sha256::949a5d4f99e786421a93b532b22ffab5578de7321369975b91aec97adfda8c3b"
+VER=13.0.1+git20230408
+# Note: Use with Git snapshots.
+SRCS="tbl::https://repo.aosc.io/aosc-repacks/gcc-$VER.tar.xz"
+# Note: Use with upstream stable releases.
+# SRCS="tbl::https://ftp.gnu.org/gnu/gcc/gcc-$VER/gcc-$VER.tar.xz"
+CHKSUMS="sha256::8cb733973c8209c4345d0bd36105817cf8e993155ee3b4c4be55f16af1c0a7e6"
 CHKUPDATE="anitya::id=6502"
