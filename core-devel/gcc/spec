@@ -1,5 +1,4 @@
 VER=12.3.0
-REL=2
-SRCS="tbl::https://ftp.gnu.org/gnu/gcc/gcc-$VER/gcc-$VER.tar.xz"
-CHKSUMS="sha256::949a5d4f99e786421a93b532b22ffab5578de7321369975b91aec97adfda8c3b"
+SRCS="git::branch=trunk::git://gcc.gnu.org/git/gcc.git"
+CHKSUMS="SKIP"
 CHKUPDATE="anitya::id=6502"
