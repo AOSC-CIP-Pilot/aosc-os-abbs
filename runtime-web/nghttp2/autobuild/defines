@@ -18,8 +18,9 @@ USECLANG__LOONGSON3=0
 # flags 'SmallDataLimit': IDs have conflicting values in
 # '../third-party/.libs/liburl-parser.a.llvm.184.url_parser.c' and 'ld-temp.o'
 USECLANG__RISCV64=0
-# FIXME: Disabling Clang on mips64r6el.
+# FIXME: Disabling Clang on mips*r6el.
 # Clang segfaults during configure.
+USECLANG__MIPS32R6EL=0
 USECLANG__MIPS64R6EL=0
 # FIXME: Disabling Clang on ppc64el.
 #
@@ -68,8 +69,11 @@ AUTOTOOLS_AFTER="--disable-werror \
                  --with-libbpf \
                  --with-boost=yes \
                  PYTHON=/usr/bin/python3"
-# FIXME: Clang build fails on loongson3, mips64r6el, ppc64el, and riscv64, disabling libbpf.
+# FIXME: Clang build fails on loongson3, mips*r6el, ppc64el, and riscv64, disabling libbpf.
 AUTOTOOLS_AFTER__LOONGSON3=" \
+                 ${AUTOTOOLS_AFTER} \
+                 --with-libbpf=no"
+AUTOTOOLS_AFTER__MIPS32R6EL=" \
                  ${AUTOTOOLS_AFTER} \
                  --with-libbpf=no"
 AUTOTOOLS_AFTER__MIPS64R6EL=" \
