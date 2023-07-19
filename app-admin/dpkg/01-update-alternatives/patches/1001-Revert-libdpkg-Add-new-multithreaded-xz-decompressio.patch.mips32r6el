@@ -1,0 +1,84 @@
+From 6e84f71fd1a9eca60a3d2a8d2cc4e6c463bd1b81 Mon Sep 17 00:00:00 2001
+From: Mingcong Bai <jeffbai@aosc.xyz>
+Date: Tue, 18 Jul 2023 11:09:58 +0800
+Subject: [PATCH] Revert "libdpkg: Add new multithreaded xz decompression
+ support"
+
+This reverts commit eb86aaa906c28f1c8d2139fca7200a3b9049da12.
+---
+ lib/dpkg/compress.c | 24 ------------------------
+ m4/dpkg-libs.m4     |  4 ----
+ 2 files changed, 28 deletions(-)
+
+diff --git a/lib/dpkg/compress.c b/lib/dpkg/compress.c
+index adf26ea76..d53c00ad0 100644
+--- a/lib/dpkg/compress.c
++++ b/lib/dpkg/compress.c
+@@ -661,29 +661,12 @@ filter_xz_get_cputhreads(struct compress_params *params)
+ static void
+ filter_unxz_init(struct io_lzma *io, lzma_stream *s)
+ {
+-#ifdef HAVE_LZMA_MT_DECODER
+-	lzma_mt mt_options = {
+-		.flags = 0,
+-		.block_size = 0,
+-		.timeout = 0,
+-		.filters = NULL,
+-	};
+-#else
+ 	uint64_t memlimit = UINT64_MAX;
+-#endif
+ 	lzma_ret ret;
+ 
+ 	io->filter = DPKG_STREAM_DECOMPRESS;
+ 
+-#ifdef HAVE_LZMA_MT_DECODER
+-	mt_options.memlimit_stop = UINT64_MAX;
+-	mt_options.memlimit_threading = filter_xz_get_memlimit();
+-	mt_options.threads = filter_xz_get_cputhreads(io->params);
+-
+-	ret = lzma_stream_decoder_mt(s, &mt_options);
+-#else
+ 	ret = lzma_stream_decoder(s, memlimit, 0);
+-#endif
+ 	if (ret != LZMA_OK)
+ 		filter_lzma_error(io, ret);
+ }
+@@ -799,19 +782,12 @@ decompress_xz(struct compress_params *params, int fd_in, int fd_out,
+               const char *desc)
+ {
+ 	struct command cmd;
+-	char *threads_opt = NULL;
+ 
+ 	command_decompress_init(&cmd, XZ, desc);
+ 
+-	if (params->threads_max > 0) {
+-		threads_opt = str_fmt("-T%d", params->threads_max);
+-		command_add_arg(&cmd, threads_opt);
+-	}
+-
+ 	fd_fd_filter(&cmd, fd_in, fd_out, env_xz);
+ 
+ 	command_destroy(&cmd);
+-	free(threads_opt);
+ }
+ 
+ static void
+diff --git a/m4/dpkg-libs.m4 b/m4/dpkg-libs.m4
+index f1eba330b..581f06bdd 100644
+--- a/m4/dpkg-libs.m4
++++ b/m4/dpkg-libs.m4
+@@ -102,10 +102,6 @@ AC_DEFUN([DPKG_LIB_LZMA], [
+     AC_DEFINE([HAVE_LZMA_MT_ENCODER], [1],
+       [xz multi-threaded compression support])
+   ])
+-  AC_CHECK_LIB([lzma], [lzma_stream_decoder_mt], [
+-    AC_DEFINE([HAVE_LZMA_MT_DECODER], [1],
+-      [xz multi-threaded decompression support])
+-  ])
+ ])# DPKG_LIB_LZMA
+ 
+ # DPKG_LIB_ZSTD
+-- 
+2.39.1
+
