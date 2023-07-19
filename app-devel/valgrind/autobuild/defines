@@ -1,6 +1,8 @@
 PKGNAME=valgrind
 PKGSEC=devel
 PKGDEP="glibc-dbg openmpi perl"
+# FIXME: OpenMPI is not available for these architectures.
+PKGDEP__MIPS32R6EL="${PKGDEP/openmpi/}"
 PKGDEP__RISCV64="${PKGDEP/openmpi/}"
 PKGDES="A tool to help find memory management problems in programs"
 
@@ -18,9 +20,12 @@ AB_FLAGS_FTF=0
 NOLTO=1
 
 AUTOTOOLS_AFTER="--with-mpicc=mpicc"
-AUTOTOOLS_AFTER__RISCV64=" \
+# FIXME: OpenMPI is not avilable for these architectures.
+AUTOTOOLS_AFTER__NOMPI=" \
                  ${AUTOTOOLS_AFTER} \
                  --without-mpicc"
+AUTOTOOLS_AFTER__MIPS32R6EL="${AUTOTOOLS_AFTER__NOMPI}"
+AUTOTOOLS_AFTER__RISCV64="${AUTOTOOLS_AFTER__NOMPI}"
 
 PKGDEP__RETRO="glibc-dbg perl"
 PKGDEP__ARMV4="${PKGDEP__RETRO}"
