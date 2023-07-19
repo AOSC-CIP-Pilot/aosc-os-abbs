@@ -1,6 +1,8 @@
 PKGNAME=gdb
 PKGSEC=devel
 PKGDEP="babeltrace elfutils expat glibc-dbg guile isl python-3 readline xz xxhash source-highlight ncurses"
+# FIXME: Boost does not build on mips32r6el.
+PKGDEP__MIPS32R6EL="${PKGDEP/souce-highlight/}"
 PKGDEP__RETRO="expat glibc-dbg isl readline"
 PKGDEP__ARMV4="${PKGDEP__RETRO}"
 PKGDEP__ARMV6HF="${PKGDEP__RETRO}"
@@ -21,6 +23,10 @@ AUTOTOOLS_AFTER="--with-system-readline --with-xxhash \
                  --enable-source-highlight --enable-threading \
                  --enable-64-bit-bfd \
                  --enable-targets=all --enable-languages=all"
+# FIXME: Boost does not build on mips32r6el.
+AUTOTOOLS_AFTER__MIPS32R6EL=" \
+                 ${AUTOTOOLS_AFTER} \
+                 --disable-source-highlight"
 # TODO: Re-check this when updating this package in Retro
 AUTOTOOLS_AFTER__RETRO=" \
                  ${AUTOTOOLS_AFTER} \
