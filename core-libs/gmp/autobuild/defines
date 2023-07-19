@@ -6,6 +6,11 @@ PKGDES="GNU Multiprecision library"
 # Build C++ and static libraries as well.
 AUTOTOOLS_AFTER="--enable-cxx \
                  --enable-static"
+# FIXME: Error: opcode not supported on this processor (mips32r6)
+# ... Seems to be using R2 instructions.
+AUTOTOOLS_AFTER__MIPS32R6EL=" \
+                 ${AUTOTOOLS_AFTER} \
+                 --disable-assembly"
 
 NOSTATIC=0
 NOSTATIC__RETRO=1
