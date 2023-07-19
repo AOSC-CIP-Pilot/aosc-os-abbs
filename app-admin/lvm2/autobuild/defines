@@ -1,6 +1,7 @@
 PKGNAME=lvm2
 PKGSEC=admin
 PKGDEP="bash dbus-python readline systemd pyudev libaio thin-provisioning-tools"
+PKGDEP__MIPS32R6EL="${PKGDEP/thin-provisioning-tools/}"
 PKGDEP__RETRO="bash readline systemd libaio"
 PKGDEP__ARMV4="${PKGDEP__RETRO}"
 PKGDEP__ARMV6HF="${PKGDEP__RETRO}"
