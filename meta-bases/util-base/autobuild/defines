@@ -1,5 +1,6 @@
 PKGNAME=util-base
 PKGSEC=Bases
+# Note: Please keep Rust applications together.
 PKGDEP="bzip2 coreutils diffutils convmv cpio dos2unix elfutils file findutils \
         gawk gpm grep groff gzip hdparm htop iotop kbd kmod less lrzip \
         lsb-release lsof lz4 lzip lzo lzop man-db nano neofetch nethogs newt \
@@ -7,6 +8,8 @@ PKGDEP="bzip2 coreutils diffutils convmv cpio dos2unix elfutils file findutils \
         progress tar texinfo unrar unzip usbutils util-linux which zip \
         xz lm-sensors expect libarchive core-base man-pages lshw tree arch-chroot \
         ripgrep fd bat mcfly hunter open-rs"
+PKGDEP__NORUST="${PKGDEP/ripgrep fd bat mcfly hunter open-rs/}"
+PKGDEP__MIPS32R6EL="${PKGDEP__NORUST}"
 PKGDEP__RETRO=" \
         bzip2 coreutils file findutils gawk grep gzip hdparm htop kbd \
         kmod less lrzip lsb-release lsof lz4 lzip lzo lzop man-db nano neofetch \
