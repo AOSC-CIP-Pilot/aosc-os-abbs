@@ -16,12 +16,17 @@ PKGDEP="a52dec aalib bluez bzip2 cairo cdparanoia chromaprint elfutils faac \
 PKGDEP__AMD64="${PKGDEP} openmpt svt-hevc"
 PKGDEP__ARM64="${PKGDEP} openmpt"
 PKGDEP__LOONGSON3="${PKGDEP}"
+PKGDEP__MIPS32R6EL="${PKGDEP/zbar/}"
 PKGDEP__MIPS64R6EL="${PKGDEP/zbar/}"
 PKGDEP__PPC64EL="${PKGDEP}"
 BUILDDEP="bash-completion cargo-c gobject-introspection gtk-doc \
           hotdoc mono nasm rustc shaderc vulkan-headers vulkan-loader \
           vulkan-validationlayers wayland-protocols graphviz"
 BUILDDEP__LOONGSON3="${BUILDDEP/mono/}"
+BUILDDEP__MIPS32R6EL=" \
+          bash-completion gobject-introspection gtk-doc \
+          nasm shaderc vulkan-headers vulkan-loader \
+          vulkan-validationlayers wayland-protocols graphviz"
 BUILDDEP__MIPS64R6EL=" \
           bash-completion gobject-introspection gtk-doc \
           nasm shaderc vulkan-headers vulkan-loader \
@@ -76,6 +81,10 @@ MESON_AFTER="-Dpython=enabled \
 MESON_AFTER__LOONGSON3=" \
              ${MESON_AFTER} \
              -Dsharp=disabled"
+MESON_AFTER__MIPS32R6EL=" \
+             ${MESON_AFTER} \
+             -Dsharp=disabled \
+             -Drs=disabled"
 MESON_AFTER__MIPS64R6EL=" \
              ${MESON_AFTER} \
              -Dsharp=disabled \
