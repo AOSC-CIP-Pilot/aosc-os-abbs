@@ -20,7 +20,12 @@ abinfo "Sourcing more architecture-dependent flags ..."
 source "$AB"/arch/${CROSS:-$ARCH}.sh
 
 abinfo 'GCC only passes CPPFLAGS in some stages, appending other flags to $CPPFLAGS ...'
-export CPPFLAGS="${CPPFLAGS} -O3 ${CFLAGS_COMMON_ARCH}"
+if ! ab_match_arch mips32r6el; then
+    export CPPFLAGS="${CPPFLAGS} -O3 ${CFLAGS_COMMON_ARCH}"
+else
+    # FIXME: Only -Os allows build to pass within useg.
+    export CPPFLAGS="${CPPFLAGS} -Os ${CFLAGS_COMMON_ARCH}"
+fi
 
 abinfo "Building libgccjit ..."
 mkdir -pv "$SRCDIR"/jitbuild
