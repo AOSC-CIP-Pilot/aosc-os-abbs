@@ -5,6 +5,7 @@ PKGDEP="bind bluez dhcp dnsmasq ethtool geoip-api-c iana-etc idnkit inetutils \
         rsync shadowsocks-libev wireless-tools wpa-supplicant proxychains-ng \
         mtr idnkit netcat core-base lksctp-tools v2ray clash arp-scan"
 PKGDEP__NOGO="${PKGDEP/v2ray clash/}"
+PKGDEP__MIPS32R6EL="${PKGDEP__NOGO}"
 PKGDEP__MIPS64R6EL="${PKGDEP__NOGO}"
 PKGDEP__RISCV64="${PKGDEP__NOGO}"
 PKGDES="Meta package for AOSC OS basic networking utilities"

@@ -1,15 +1,13 @@
 PKGNAME=network-base
 PKGSEC=Bases
-PKGDEP="bind bluez dhcp dnsmasq ethtool geoip-api-c iana-etc idnkit inetutils \
-        iproute2 iptables iw net-tools openssh nfs-utils nghttp2 ppp \
-        rsync shadowsocks-libev wireless-tools wpa-supplicant proxychains-ng \
+PKGDEP="bind bluez dnsmasq ethtool geoip-api-c iana-etc idnkit inetutils \
+        iproute2 iptables iw net-tools openssh nghttp2 ppp \
+        rsync wireless-tools wpa-supplicant proxychains-ng \
         mtr idnkit netcat core-base lksctp-tools v2ray clash arp-scan"
-# FIXME: cut out clash, v2ray due to missing Go support.
-PKGDEP__MIPS64R6EL=" \
-        bind bluez dhcp dnsmasq ethtool geoip-api-c iana-etc idnkit inetutils \
-        iproute2 iptables iw net-tools openssh nfs-utils nghttp2 ppp \
-        rsync shadowsocks-libev wireless-tools wpa-supplicant proxychains-ng \
-        mtr idnkit netcat core-base lksctp-tools arp-scan"
+PKGDEP__NOGO="${PKGDEP/v2ray clash/}"
+PKGDEP__MIPS32R6EL="${PKGDEP__NOGO}"
+PKGDEP__MIPS64R6EL="${PKGDEP__NOGO}"
+PKGDEP__RISCV64="${PKGDEP__NOGO}"
 PKGDEP__RISCV64="${PKGDEP/v2ray/}"
 PKGDES="Meta package for AOSC OS basic networking utilities"
 
