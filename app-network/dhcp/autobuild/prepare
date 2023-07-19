@@ -4,3 +4,10 @@ sed -e '/^CFLAGS="$CFLAGS/ s/INGS"/INGS -D_GNU_SOURCE -fcommon"/' \
 
 abinfo "Appending -fcommon to fix build with GCC 10+ ..."
 export CFLAGS="${CFLAGS} -fcommon"
+
+if ab_match_arch mips32r6el; then
+    # FIXME: This shouldn't happen.
+    abinfo "Appending -latomic to fix build ..."
+    export LDFLAGS="${LDFLAGS} -latomic"
+    export CFLAGS="${LDFLAGS} -latomic"
+fi

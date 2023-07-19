@@ -10,6 +10,9 @@ AUTOTOOLS_AFTER="--with-srv-lease-file=/var/lib/dhcp/dhcpd.leases \
                  --with-cli6-lease-file=/var/lib/dhclient/dhclient6.leases \
                  --sysconfdir=/etc/dhcp \
                  --enable-binary-leases"
+AUTOTOOLS_AFTER__MIPS32R6EL=" \
+                 ${AUTOTOOLS_AFTER} \
+                 LIBS=-latomic"
 ABSHADOW=0
 RECONF=0
 NOPARALLEL=1
