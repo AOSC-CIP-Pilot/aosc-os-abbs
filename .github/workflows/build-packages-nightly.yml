@@ -1,0 +1,158 @@
+name: Build packages after nightly release check
+on:
+  push:
+    branches:
+      - bleeding-edge
+      - bleeding-edge-nightly
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Packages to build, separated by spaces'
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  repository-projects: write
+
+jobs:
+  build-amd64:
+    runs-on:
+      - self-hosted
+      - builder
+      - amd64
+    env:
+      BEFORE_COMMIT: ${{ github.event.before }}
+      AFTER_COMMIT: ${{ github.event.after }}
+      ARCH: amd64
+      ABBS_TREE_DIR: ${{ github.workspace }}/buildtree-nightly
+      SCRIPT_DIR: ${{ github.workspace }}/workflows-ci
+      PACKAGES: ${{ inputs.packages }}
+    steps:
+      # Checkout ABBS and workflows-ci repository
+      - name: Checkout ABBS Tree
+        uses: actions/checkout@v3
+        with:
+          ref: 'bleeding-edge-nightly'
+          path: 'buildtree-nightly'
+
+      # Checks out the CI scripts repository
+      - name: Checkout workflows-ci repository
+        uses: actions/checkout@v3
+        with:
+          repository: 'cyanoxygen/workflows-ci'
+          ref: 'master'
+          path: 'workflows-ci'
+      - name: Resolve packages
+        id: resolve-packages
+        run: |
+          echo "Resolving packages..."
+          PENDING_PACKAGES=()
+          if [ "$PACKAGES" ] ; then
+            for i in $(echo $PACKAGES) ; do
+              PENDING_PACKAGES+=(${i/#*\//})
+            done
+          elif [ -e $ABBS_TREE_DIR/groups/ci-batch ] ; then
+            for i in $(cat $ABBS_TREE_DIR/groups/ci-batch) ; do
+              PENDING_PACKAGES+=(${i/#*\//})
+            done
+          fi
+          if [ "${#PENDING_PACKAGES[@]}" == "0" ] ; then
+            echo "Nothing to build."
+            echo "HAS_PACKAGES=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "${#PENDING_PACKAGES[@]} packages to build."
+            echo "HAS_PACKAGES=true" >> "$GITHUB_OUTPUT"
+            echo "PENDING_PACKAGES=${PENDING_PACKAGES[@]}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Prepare the Ciel workspace
+      # Input:
+      # - (env) ABBS_TREE_DIR: Path to the checked-out ABBS Tree.
+      # Output:
+      # - CIEL_WORKSPACE_DIR: path to the created Ciel workspace.
+      # - BATCHID: unique identifier.
+      - name: Prepare Ciel workspace
+        id: prepare-ciel
+        if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true'
+        run: |
+          echo "Preparing Ciel workspace..."
+          cd $SCRIPT_DIR
+          bash $SCRIPT_DIR/prepare-workspace
+
+      # Build the packages
+      # Input:
+      # - CIEL_WORKSPACE_DIR: path to the created Ciel workspace.
+      # - BATCHID: unique identifier.
+      # Output:
+      # - ARTIFACT_DIR: path to the artifacts.
+      - name: Build the packages
+        id: build-packages
+        if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true'
+        env:
+          PENDING_PACKAGES: ${{ steps.resolve-packages.outputs.PENDING_PACKAGES }}
+          CIEL_WORKSPACE_DIR: ${{ steps.prepare-ciel.outputs.CIEL_WORKSPACE_DIR }}
+          BATCHID: ${{ steps.prepare-ciel.outputs.BATCHID }}
+        run: |
+          if [ ! "$PENDING_PACKAGES" -o ! "$CIEL_WORKSPACE_DIR" -o ! "$BATCHID" ] ; then
+            echo "Failed to acquire build information!"
+            exit 1
+          fi
+          echo "Building packages..."
+          cd $SCRIPT_DIR
+          bash $SCRIPT_DIR/build-job $PENDING_PACKAGES
+
+      - name: Push the packages to AOSC Repo
+        env:
+          ARTIFACT_DIR: ${{ steps.build-packages.outputs.ARTIFACT_DIR }}
+          BATCHID: ${{ steps.prepare-ciel.outputs.BATCHID }}
+        if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.build-packages.outputs.STATUS == 'success'
+        run: |
+          if [ ! "$ARTIFACT_DIR" -o ! "$BATCHID" ] ; then
+            echo "Failed to acquire required information."
+            exit 1
+          fi
+          echo "Uploading packages to AOSC Packages Repository..."
+          echo "pushpkg"
+          if ! /bin/true ; then
+            echo "Failed to upload the packages. Not treating as error."
+            exit 0
+          fi
+      - name: Upload to GitHub Artifacts
+        if:  always() && steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.prepare-ciel.outputs.STATUS == 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Packages-${{ steps.prepare-ciel.outputs.BATCHID }}
+          path: ${{ steps.build-packages.outputs.ARTIFACT_DIR }}
+
+      - name: Clean up the Ciel workspace
+        if: always() && steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.prepare-ciel.outputs.STATUS == 'success'
+        env:
+          CIEL_WORKSPACE_DIR: ${{ steps.prepare-ciel.outputs.CIEL_WORKSPACE_DIR }}
+        run: |
+          echo "Removing Ciel workspace at $CIEL_WORKSPACE_DIR."
+          if [ -d "$CIEL_WORKSPACE_DIR" -a "x$(realpath $CIEL_WORKSPACE_DIR)" != "x/" ] ; then
+            cd $CIEL_WORKSPACE_DIR
+            sudo ciel down
+            cd $SCRIPT_DIR
+            sudo rm -fr $CIEL_WORKSPACE_DIR
+          fi
+
+      - name: Conclusion
+        if: always() && steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.prepare-ciel.outputs.STATUS == 'success'
+        run: |
+          if [ "${{ steps.build-packages.outputs.STATUS }}" == "success" ] ; then
+            echo -e "\033[1;32mBuild succeeded!\033[0m"
+            exit 0
+          else
+            echo -e "\033[1;31mBuild failed!\033[0m"
+            echo "Not all of the packages are built, not uploading to the AOSC main repo."
+            exit 1
+          fi
+
+      - name: Nothing to build
+        if: steps.resolve-packages.outputs.HAS_PACKAGES == 'false'
+        run: |
+          echo "Nothing to build. This should not happen!"
+          echo "Treating it as error."
+          exit 1
