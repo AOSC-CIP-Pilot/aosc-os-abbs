@@ -1,7 +1,8 @@
-diff -Naur binutils-2.39/bfd/config.bfd binutils-2.39.r6/bfd/config.bfd
---- binutils-2.39/bfd/config.bfd	2022-07-08 02:46:47.000000000 -0700
-+++ binutils-2.39.r6/bfd/config.bfd	2022-11-09 07:14:55.069302385 -0800
-@@ -1490,6 +1490,11 @@
+diff --git a/bfd/config.bfd b/bfd/config.bfd
+index bdee53957c0..31cb1e90482 100644
+--- a/bfd/config.bfd
++++ b/bfd/config.bfd
+@@ -1509,6 +1509,11 @@ case "${targ_defvec} ${targ_selvecs}" in
      want64=true
      ;;
  esac
@@ -13,10 +14,11 @@ diff -Naur binutils-2.39/bfd/config.bfd binutils-2.39.r6/bfd/config.bfd
  
  case "${host64}${want64}" in
    *true*)
-diff -Naur binutils-2.39/bfd/configure binutils-2.39.r6/bfd/configure
---- binutils-2.39/bfd/configure	2022-08-05 02:54:00.000000000 -0700
-+++ binutils-2.39.r6/bfd/configure	2022-11-09 07:14:55.076302402 -0800
-@@ -13292,6 +13292,7 @@
+diff --git a/bfd/configure b/bfd/configure
+index 910af3ce6d8..f6447feb0a9 100755
+--- a/bfd/configure
++++ b/bfd/configure
+@@ -13774,6 +13774,7 @@ do
  	TDEFINES="$TDEFINES $targ_cflags"
      fi
  done
@@ -24,10 +26,11 @@ diff -Naur binutils-2.39/bfd/configure binutils-2.39.r6/bfd/configure
  
  
  # This processing still needs to be done if we're to decide properly whether
-diff -Naur binutils-2.39/bfd/configure.ac binutils-2.39.r6/bfd/configure.ac
---- binutils-2.39/bfd/configure.ac	2022-08-01 00:12:32.000000000 -0700
-+++ binutils-2.39.r6/bfd/configure.ac	2022-11-09 07:14:55.077302404 -0800
-@@ -349,6 +349,7 @@
+diff --git a/bfd/configure.ac b/bfd/configure.ac
+index f044616f4d9..e0400bf4a18 100644
+--- a/bfd/configure.ac
++++ b/bfd/configure.ac
+@@ -341,6 +341,7 @@ do
  	TDEFINES="$TDEFINES $targ_cflags"
      fi
  done
@@ -35,29 +38,37 @@ diff -Naur binutils-2.39/bfd/configure.ac binutils-2.39.r6/bfd/configure.ac
  AC_SUBST(TDEFINES)
  
  # This processing still needs to be done if we're to decide properly whether
-diff -Naur binutils-2.39/bfd/elfxx-mips.c binutils-2.39.r6/bfd/elfxx-mips.c
---- binutils-2.39/bfd/elfxx-mips.c	2022-07-08 02:46:47.000000000 -0700
-+++ binutils-2.39.r6/bfd/elfxx-mips.c	2022-11-09 07:14:55.081302414 -0800
-@@ -12233,9 +12233,15 @@
-     {
-     default:
-       if (ABI_N32_P (abfd) || ABI_64_P (abfd))
-+#ifdef MIPS_DEFAULT_R6
-+        val = E_MIPS_ARCH_64R6;
-+      else
-+        val = E_MIPS_ARCH_32R6;
-+#else
-         val = E_MIPS_ARCH_3;
+diff --git a/bfd/elfxx-mips.c b/bfd/elfxx-mips.c
+index 1e9851c3190..ff965062994 100644
+--- a/bfd/elfxx-mips.c
++++ b/bfd/elfxx-mips.c
+@@ -12323,7 +12323,6 @@ mips_set_isa_flags (bfd *abfd)
        else
-         val = E_MIPS_ARCH_1;
-+#endif
+         val = MIPS_DEFAULT_R6 ? E_MIPS_ARCH_32R6 : E_MIPS_ARCH_1;
        break;
- 
+-
      case bfd_mach_mips3000:
-diff -Naur binutils-2.39/gas/config/tc-mips.c binutils-2.39.r6/gas/config/tc-mips.c
---- binutils-2.39/gas/config/tc-mips.c	2022-07-08 02:46:47.000000000 -0700
-+++ binutils-2.39.r6/gas/config/tc-mips.c	2022-11-09 07:16:32.648643792 -0800
-@@ -9082,7 +9082,7 @@
+       val = E_MIPS_ARCH_1;
+       break;
+diff --git a/gas/config.in b/gas/config.in
+index 232bc350759..87376450900 100644
+--- a/gas/config.in
++++ b/gas/config.in
+@@ -156,6 +156,9 @@
+ /* Choose a default ABI for MIPS targets. */
+ #undef MIPS_DEFAULT_ABI
+ 
++/* Generate code for MIPSr6 by default on MIPS targets. */
++#undef MIPS_DEFAULT_R6
++
+ /* Define value for nds32_arch_name */
+ #undef NDS32_DEFAULT_ARCH_NAME
+ 
+diff --git a/gas/config/tc-mips.c b/gas/config/tc-mips.c
+index d6aae660abf..edbc55495d2 100644
+--- a/gas/config/tc-mips.c
++++ b/gas/config/tc-mips.c
+@@ -9081,7 +9081,7 @@ macro_build (expressionS *ep, const char *name, const char *fmt, ...)
  		      || *r == BFD_RELOC_HI16_S
  		      || *r == BFD_RELOC_LO16
  		      || *r == BFD_RELOC_MIPS_GOT_OFST
@@ -66,7 +77,7 @@ diff -Naur binutils-2.39/gas/config/tc-mips.c binutils-2.39.r6/gas/config/tc-mip
  			  && (*r == BFD_RELOC_MIPS_16
  			      || *r == BFD_RELOC_MIPS_GOT16
  			      || *r == BFD_RELOC_MIPS_CALL16
-@@ -20223,6 +20223,13 @@
+@@ -20225,6 +20225,13 @@ static const struct mips_cpu_info *
  mips_parse_cpu (const char *option, const char *cpu_string)
  {
    const struct mips_cpu_info *p;
@@ -80,7 +91,7 @@ diff -Naur binutils-2.39/gas/config/tc-mips.c binutils-2.39.r6/gas/config/tc-mip
  
    /* 'from-abi' selects the most compatible architecture for the given
       ABI: MIPS I for 32-bit ABIs and MIPS III for 64-bit ABIs.  For the
-@@ -20237,18 +20244,18 @@
+@@ -20239,18 +20246,18 @@ mips_parse_cpu (const char *option, const char *cpu_string)
    if (strcasecmp (cpu_string, "from-abi") == 0)
      {
        if (ABI_NEEDS_32BIT_REGS (mips_abi))
@@ -104,23 +115,11 @@ diff -Naur binutils-2.39/gas/config/tc-mips.c binutils-2.39.r6/gas/config/tc-mip
      }
  
    /* 'default' has traditionally been a no-op.  Probably not very useful.  */
-diff -Naur binutils-2.39/gas/config.in binutils-2.39.r6/gas/config.in
---- binutils-2.39/gas/config.in	2022-08-05 02:55:19.000000000 -0700
-+++ binutils-2.39.r6/gas/config.in	2022-11-09 07:14:55.082302417 -0800
-@@ -150,6 +150,9 @@
- /* Choose a default ABI for MIPS targets. */
- #undef MIPS_DEFAULT_ABI
- 
-+/* Generate code for MIPSr6 by default on MIPS targets. */
-+#undef MIPS_DEFAULT_R6
-+
- /* Define value for nds32_arch_name */
- #undef NDS32_DEFAULT_ARCH_NAME
- 
-diff -Naur binutils-2.39/gas/configure binutils-2.39.r6/gas/configure
---- binutils-2.39/gas/configure	2022-08-05 02:55:17.000000000 -0700
-+++ binutils-2.39.r6/gas/configure	2022-11-09 07:14:55.097302453 -0800
-@@ -12187,6 +12187,14 @@
+diff --git a/gas/configure b/gas/configure
+index 1fc3a54b21f..1356dc38fa2 100755
+--- a/gas/configure
++++ b/gas/configure
+@@ -12237,6 +12237,14 @@ _ACEOF
  	    mips_default_abi=NO_ABI
  	    ;;
  	esac
@@ -135,7 +134,7 @@ diff -Naur binutils-2.39/gas/configure binutils-2.39.r6/gas/configure
  
  cat >>confdefs.h <<_ACEOF
  #define MIPS_CPU_STRING_DEFAULT "$mips_cpu"
-@@ -12207,6 +12215,11 @@
+@@ -12257,6 +12265,11 @@ cat >>confdefs.h <<_ACEOF
  #define MIPS_DEFAULT_ABI $mips_default_abi
  _ACEOF
  
@@ -147,10 +146,11 @@ diff -Naur binutils-2.39/gas/configure binutils-2.39.r6/gas/configure
  	;;
      esac
  
-diff -Naur binutils-2.39/gas/configure.ac binutils-2.39.r6/gas/configure.ac
---- binutils-2.39/gas/configure.ac	2022-07-08 02:46:47.000000000 -0700
-+++ binutils-2.39.r6/gas/configure.ac	2022-11-09 07:14:55.098302455 -0800
-@@ -398,6 +398,14 @@
+diff --git a/gas/configure.ac b/gas/configure.ac
+index b79586d6390..3132814ece9 100644
+--- a/gas/configure.ac
++++ b/gas/configure.ac
+@@ -406,6 +406,14 @@ changequote([,])dnl
  	    mips_default_abi=NO_ABI
  	    ;;
  	esac
@@ -165,7 +165,7 @@ diff -Naur binutils-2.39/gas/configure.ac binutils-2.39.r6/gas/configure.ac
  	AC_DEFINE_UNQUOTED(MIPS_CPU_STRING_DEFAULT, "$mips_cpu",
  			   [Default CPU for MIPS targets. ])
  	AC_DEFINE_UNQUOTED(USE_E_MIPS_ABI_O32, $use_e_mips_abi_o32,
-@@ -406,6 +414,8 @@
+@@ -414,6 +422,8 @@ changequote([,])dnl
  			   [Generate 64-bit code by default on MIPS targets. ])
  	AC_DEFINE_UNQUOTED(MIPS_DEFAULT_ABI, $mips_default_abi,
  			   [Choose a default ABI for MIPS targets. ])
