@@ -36,6 +36,7 @@ AUTOTOOLS_AFTER="--libexecdir=/usr/lib \
                  --disable-werror \
                  --enable-static \
                  --disable-multi-arch \
+                 --enable-crypt \
                  --with-__thread \
                  --enable-obsolete-nsl \
                  --enable-obsolete-rpc \
