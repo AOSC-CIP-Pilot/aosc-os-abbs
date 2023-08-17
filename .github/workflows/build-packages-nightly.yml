@@ -10,24 +10,29 @@ on:
         description: 'Packages to build, separated by spaces'
         type: string
         required: true
+      target-branch:
+        description: 'Target branch to build against, e.g. bleeding-edge-nightly'
+        type: string
+        required: true
 
 permissions:
   contents: write
   repository-projects: write
 
 jobs:
-  build-amd64:
+  build-mips64r6el:
     runs-on:
       - self-hosted
       - builder
-      - amd64
+      - emulation
     env:
       BEFORE_COMMIT: ${{ github.event.before }}
       AFTER_COMMIT: ${{ github.event.after }}
-      ARCH: amd64
+      ARCH: mips64r6el
       ABBS_TREE_DIR: ${{ github.workspace }}/buildtree-nightly
       SCRIPT_DIR: ${{ github.workspace }}/workflows-ci
-      PACKAGES: ${{ inputs.packages }}
+      PROVIDED_PACKAGES: ${{ inputs.packages }}
+      TARGET_BRANCH: ${{ inputs.target-branch != '' && inputs.target-branch || 'bleeding-edge-nightly' }}
     steps:
       # Checkout ABBS and workflows-ci repository
       - name: Checkout ABBS Tree
@@ -40,16 +45,16 @@ jobs:
       - name: Checkout workflows-ci repository
         uses: actions/checkout@v3
         with:
-          repository: 'cyanoxygen/workflows-ci'
-          ref: 'master'
+          repository: 'AOSC-CIP-Pilot/workflows-ci'
+          ref: 'cip'
           path: 'workflows-ci'
       - name: Resolve packages
         id: resolve-packages
         run: |
           echo "Resolving packages..."
           PENDING_PACKAGES=()
-          if [ "$PACKAGES" ] ; then
-            for i in $(echo $PACKAGES) ; do
+          if [ "$PROVIDED_PACKAGES" ] ; then
+            for i in $(echo $PROVIDED_PACKAGES) ; do
               PENDING_PACKAGES+=(${i/#*\//})
             done
           elif [ -e $ABBS_TREE_DIR/groups/ci-batch ] ; then
@@ -61,7 +66,10 @@ jobs:
             echo "Nothing to build."
             echo "HAS_PACKAGES=false" >> "$GITHUB_OUTPUT"
           else
-            echo "${#PENDING_PACKAGES[@]} packages to build."
+            echo "${#PENDING_PACKAGES[@]} packages to build:"
+            for pkg in ${PENDING_PACKAGES[@]} ; do
+              echo "- $pkg"
+            done
             echo "HAS_PACKAGES=true" >> "$GITHUB_OUTPUT"
             echo "PENDING_PACKAGES=${PENDING_PACKAGES[@]}" >> "$GITHUB_OUTPUT"
           fi
@@ -106,16 +114,26 @@ jobs:
         env:
           ARTIFACT_DIR: ${{ steps.build-packages.outputs.ARTIFACT_DIR }}
           BATCHID: ${{ steps.prepare-ciel.outputs.BATCHID }}
+          PUSHPKG_USER: repo
+          PUSHPKG: pushpkg-cip
         if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.build-packages.outputs.STATUS == 'success'
         run: |
           if [ ! "$ARTIFACT_DIR" -o ! "$BATCHID" ] ; then
             echo "Failed to acquire required information."
             exit 1
           fi
+          echo "Setting up SSH..."
+          mkdir -pm600 $HOME/.ssh
+          echo "${{ secrets.CI_SSH_KEY }}" > $HOME/.ssh/ci-ssh-key
+          chmod 600 $HOME/.ssh/ci-ssh-key
+          eval $(ssh-agent)
+          ssh-add $HOME/.ssh/ci-ssh-key
+
           echo "Uploading packages to AOSC Packages Repository..."
-          echo "pushpkg"
-          if ! /bin/true ; then
-            echo "Failed to upload the packages. Not treating as error."
+          echo "pushpkging to topic $TARGET_BRANCH, using user $PUSHPKG_USER..."
+          cd $ARTIFACT_DIR
+          if ! $PUSHPKG $PUSHPKG_USER $TARGET_BRANCH ; then
+            echo "Failed to upload the packages. Not treated as error."
             exit 0
           fi
       - name: Upload to GitHub Artifacts
@@ -125,7 +143,7 @@ jobs:
           name: Packages-${{ steps.prepare-ciel.outputs.BATCHID }}
           path: ${{ steps.build-packages.outputs.ARTIFACT_DIR }}
 
-      - name: Clean up the Ciel workspace
+      - name: Clean up the workspace
         if: always() && steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.prepare-ciel.outputs.STATUS == 'success'
         env:
           CIEL_WORKSPACE_DIR: ${{ steps.prepare-ciel.outputs.CIEL_WORKSPACE_DIR }}
@@ -136,6 +154,10 @@ jobs:
             sudo ciel down
             cd $SCRIPT_DIR
             sudo rm -fr $CIEL_WORKSPACE_DIR
+          fi
+          echo "Terminating SSH Agent..."
+          if [ "$SSH_AGENT_PID" ] ; then
+            ssh-agent -k
           fi
 
       - name: Conclusion
