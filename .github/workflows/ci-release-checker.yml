@@ -23,13 +23,13 @@ jobs:
         with:
           ref: 'bleeding-edge-nightly'
           fetch-depth: '0'
-          token: '${{ secrets.CYAN_PAT }}'
+          token: '${{ secrets.CIP_PAT }}'
           path: 'nightly'
       # Checks out the CI scripts repository to $GITHUB_WORKSPACE/workflows-ci
       - uses: actions/checkout@v3
         with:
-          repository: 'cyanoxygen/workflows-ci'
-          ref: 'master'
+          repository: 'AOSC-CIP-Pilot/workflows-ci'
+          ref: 'cip'
           path: 'workflows-ci'
       
       # Check for updates
@@ -54,13 +54,13 @@ jobs:
         with:
           ref: 'bleeding-edge'
           fetch-depth: '0'
-          token: '${{ secrets.CYAN_PAT }}'
+          token: '${{ secrets.CIP_PAT }}'
           path: 'abbs'
       # Checks out the CI scripts repository to $GITHUB_WORKSPACE/workflows-ci
       - uses: actions/checkout@v3
         with:
-          repository: 'cyanoxygen/workflows-ci'
-          ref: 'master'
+          repository: 'AOSC-CIP-Pilot/workflows-ci'
+          ref: 'cip'
           path: 'workflows-ci'
       
       # Check for updates
