@@ -14,6 +14,10 @@ on:
         description: 'Target branch to build against, e.g. bleeding-edge-nightly'
         type: string
         required: true
+      push-to-repo:
+        description: 'Whether to push the packages to AOSC OS/CIP packages repository'
+        type: bool
+        required: true
 
 permissions:
   contents: write
@@ -33,6 +37,7 @@ jobs:
       SCRIPT_DIR: ${{ github.workspace }}/workflows-ci
       PROVIDED_PACKAGES: ${{ inputs.packages }}
       TARGET_BRANCH: ${{ inputs.target-branch != '' && inputs.target-branch || 'bleeding-edge-nightly' }}
+      PUSH_ENABLED: ${{ inputs.push-to-repo == true && 'true' || 'false' }}
     steps:
       # Checkout ABBS and workflows-ci repository
       - name: Checkout ABBS Tree
@@ -48,6 +53,7 @@ jobs:
           repository: 'AOSC-CIP-Pilot/workflows-ci'
           ref: 'cip'
           path: 'workflows-ci'
+
       - name: Resolve packages
         id: resolve-packages
         run: |
@@ -118,6 +124,10 @@ jobs:
           PUSHPKG: pushpkg-cip
         if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.build-packages.outputs.STATUS == 'success'
         run: |
+          if [ "$PUSH_ENABLED" != 'true' ] ; then
+            echo "Pushing is not enabled. Skipping."
+            exit 0
+          fi
           if [ ! "$ARTIFACT_DIR" -o ! "$BATCHID" ] ; then
             echo "Failed to acquire required information."
             exit 1
