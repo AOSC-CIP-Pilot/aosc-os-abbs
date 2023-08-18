@@ -120,7 +120,7 @@ jobs:
         env:
           ARTIFACT_DIR: ${{ steps.build-packages.outputs.ARTIFACT_DIR }}
           BATCHID: ${{ steps.prepare-ciel.outputs.BATCHID }}
-          PUSHPKG_USER: repo
+          PUSHPKG_USER: cyan
           PUSHPKG: pushpkg-cip
         if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.build-packages.outputs.STATUS == 'success'
         run: |
