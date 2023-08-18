@@ -13,7 +13,10 @@ permissions:
 
 jobs:
   check-for-nightly-updates:
-    runs-on: self-hosted
+    runs-on:
+      - self-hosted
+      - aosc
+      - checker
     env:
       NIGHTLY: 1
     steps:
@@ -44,7 +47,10 @@ jobs:
           pushd ${{ github.workspace }}/nightly
           git push --force
   check-for-updates:
-    runs-on: self-hosted
+    runs-on:
+      - self-hosted
+      - aosc
+      - checker
     env:
       NIGHTLY: 0
     steps:
