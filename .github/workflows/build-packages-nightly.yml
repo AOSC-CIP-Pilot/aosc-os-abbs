@@ -36,7 +36,7 @@ jobs:
       ABBS_TREE_DIR: ${{ github.workspace }}/buildtree-nightly
       SCRIPT_DIR: ${{ github.workspace }}/workflows-ci
       PROVIDED_PACKAGES: ${{ inputs.packages }}
-      TARGET_BRANCH: ${{ inputs.target-branch != '' && inputs.target-branch || 'bleeding-edge-nightly' }}
+      TARGET_BRANCH: ${{ inputs.target-branch != '' && inputs.target-branch || 'bleeding-edge' }}
       PUSH_ENABLED: ${{ inputs.push-to-repo == true && 'true' || 'false' }}
     steps:
       # Checkout ABBS and workflows-ci repository
