@@ -1,5 +1,4 @@
-VER=6.4
-REL=1
-SRCS="https://ftp.gnu.org/gnu/ncurses/ncurses-${VER}.tar.gz"
-CHKSUMS="sha256::6931283d9ac87c5073f30b6290c4c75f21632bb4fc3603ac8100812bed248159"
+VER=6.4+20230715
+SRCS="tbl::https://invisible-island.net/archives/ncurses/current/ncurses-${VER/+/-}.tgz"
+CHKSUMS="sha256::7a8dc72f7021815ac7d594e9bd74fc13b20ec4d84295e60c04163197e28aada7"
 CHKUPDATE="anitya::id=2057"
