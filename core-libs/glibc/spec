@@ -1,9 +1,8 @@
-VER=2.36
-REL=4
+VER="2.37+git20230818.r40289.f1c7ed0859"
 LOCALEGENVER=20160914
-SRCS="git::branch=master::git://sourceware.org/git/glibc.git \
+SRCS="git::branch=master;commit=f1c7ed0859a45929136836341741c7cd70f428cb::git://sourceware.org/git/glibc.git \
       tbl::https://github.com/AOSC-Dev/locale-gen/archive/refs/tags/v$LOCALEGENVER.tar.gz"
 CHKSUMS="SKIP \
-         sha256::230a7f526af060dbe596537fcd9baf839a4c86b8173ae6ee39c62f5eb8b76881"
+	sha256::230a7f526af060dbe596537fcd9baf839a4c86b8173ae6ee39c62f5eb8b76881"
 CHKUPDATE="anitya::id=5401"
 SUBDIR="glibc"
