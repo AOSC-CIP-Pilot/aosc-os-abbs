@@ -1,4 +1,4 @@
-VER=8.2.1
-SRCS="git::branch=devel::git://git.savannah.gnu.org/readline.git"
+VER="8.2+git20230816.r110.3237b11"
+SRCS="git::branch=devel;commit=3237b116110081d3ba39af7c9d98f5742b7a08b2::git://git.savannah.gnu.org/readline.git"
 CHKSUMS="SKIP"
 CHKUPDATE="anitya::id=4173"
