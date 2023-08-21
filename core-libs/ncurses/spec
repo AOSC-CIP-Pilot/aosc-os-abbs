@@ -1,4 +1,4 @@
-VER=6.4
-SRCS="git::branch=master::https://github.com/mirror/ncurses.git"
+VER="6.4+20230819+git20230312.r832.87c2c84c"
+SRCS="git::branch=master;commit=87c2c84cbd2332d6d94b12a1dcaf12ad1a51a938::https://github.com/mirror/ncurses.git"
 CHKSUMS="SKIP"
 CHKUPDATE="anitya::id=2057"
