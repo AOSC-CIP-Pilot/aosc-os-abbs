@@ -102,6 +102,9 @@ jobs:
       # - ARTIFACT_DIR: path to the artifacts.
       - name: Build the packages
         id: build-packages
+        # Job would be cancelled if the time consumed exceeds 6 hours.
+        # Well, if it runs for more than 24 hours, then even us can't do anything.
+        timeout-minutes: 1440
         if: steps.resolve-packages.outputs.HAS_PACKAGES == 'true'
         env:
           PENDING_PACKAGES: ${{ steps.resolve-packages.outputs.PENDING_PACKAGES }}
@@ -146,6 +149,7 @@ jobs:
             echo "Failed to upload the packages. Not treated as error."
             exit 0
           fi
+
       - name: Upload to GitHub Artifacts
         if:  always() && steps.resolve-packages.outputs.HAS_PACKAGES == 'true' && steps.prepare-ciel.outputs.STATUS == 'success'
         uses: actions/upload-artifact@v3
