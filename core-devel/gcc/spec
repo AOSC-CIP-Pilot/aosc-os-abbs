@@ -1,4 +1,4 @@
-VER="13.2.0+git20230821.r203276.a75932106e6"
-SRCS="git::branch=trunk;commit=a75932106e613c39ac19fedc0fbb972eccaac370::git://gcc.gnu.org/git/gcc.git"
+VER="13.2.0+git20230822.r203310.27de9aa1521"
+SRCS="git::branch=trunk;commit=27de9aa152141e7f3ee66372647d0f2cd94c4b90::git://gcc.gnu.org/git/gcc.git"
 CHKSUMS="SKIP"
 CHKUPDATE="anitya::id=6502"
