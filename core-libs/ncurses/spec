@@ -1,4 +1,4 @@
-VER=6.4+20230819
+VER=6.4+20230826
 SRCS="tbl::https://invisible-island.net/archives/ncurses/current/ncurses-${VER/+/-}.tgz"
-CHKSUMS="sha256::d0fb9b9b4dc1d288f5b2c7271b732bcd9a6309491a2570d03257abad0352cff0"
+CHKSUMS="sha256::f141eddabf9fe6a529658c0f7ae0f2a46b312ec598b4ac64ddcf0aa9fc3cb1d8"
 CHKUPDATE="anitya::id=2057"
