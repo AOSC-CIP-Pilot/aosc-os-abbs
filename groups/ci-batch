@@ -1,6 +1,1 @@
-core-libs/glibc
 core-libs/ncurses
-core-libs/readline
-core-libs/zlib
-core-devel/binutils
-core-devel/gcc
